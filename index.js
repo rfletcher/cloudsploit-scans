@@ -1,32 +1,19 @@
 var async = require('async');
+var AWS = require('aws-sdk');
 var plugins = require('./exports.js');
 var collector = require('./collect.js');
 
-var AWSConfig;
+AWS.config = new AWS.Config({
+    // credentials: {
+    //     accessKeyId: '',
+    //     secretAccessKey: '',
+    //     sessiontoken: ''
+    // },
+    // region: ''
+});
 
-// OPTION 1: Configure AWS credentials through hard-coded key and secret
-// AWSConfig = {
-//     accessKeyId: '',
-//     secretAccessKey: '',
-//     sessionToken: '',
-//     region: 'us-east-1'
-// };
-
-// OPTION 2: Import an AWS config file containing credentials
-// AWSConfig = require(__dirname + '/credentials.json');
-
-// OPTION 3: ENV configuration with AWS_ env vars
-if(process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY){
-    AWSConfig = {
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-        secretAccessKey:  process.env.AWS_SECRET_ACCESS_KEY,
-        sessionToken: process.env.AWS_SESSION_TOKEN,
-        region: process.env.AWS_DEFAULT_REGION || 'us-east-1'
-    };
-}
-
-if (!AWSConfig || !AWSConfig.accessKeyId) {
-    return console.log('ERROR: Invalid AWSConfig');
+if (!AWS.config.credentials.accessKeyId) {
+    return console.log('ERROR: Invalid AWS Config');
 }
 
 var skipRegions = [];   // Add any regions you wish to skip here. Ex: 'us-east-2'
@@ -71,7 +58,7 @@ console.log('INFO: API calls determined.');
 console.log('INFO: Collecting AWS metadata. This may take several minutes...');
 
 // STEP 2 - Collect API Metadata from AWS
-collector(AWSConfig, {api_calls: apiCalls, skip_regions: skipRegions}, function(err, collection){
+collector({api_calls: apiCalls, skip_regions: skipRegions}, function(err, collection){
     if (err || !collection) return console.log('ERROR: Unable to obtain API metadata');
 
     console.log('INFO: Metadata collection complete. Analyzing...');

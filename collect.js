@@ -4,7 +4,6 @@ to run the CloudSploit scans. This data will be returned in the callback
 as a JSON object.
 
 Arguments:
-- AWSConfig: If using an access key/secret, pass in the config object. Pass null if not.
 - settings: custom settings for the scan. Properties:
 	- skip_regions: (Optional) List of regions to skip
 	- api_calls: (Optional) If provided, will only query these APIs.
@@ -420,7 +419,7 @@ var postcalls = [
 ];
 
 // Loop through all of the top-level collectors for each service
-var collect = function(AWSConfig, settings, callback) {
+var collect = function(settings, callback) {
 	var collection = {};
 
 	async.eachOfLimit(calls, 10, function(call, service, serviceCb){
@@ -439,8 +438,7 @@ var collect = function(AWSConfig, settings, callback) {
 					globalServices.indexOf(service) === -1) return regionCb();
 				if (!collection[serviceLower][callKey][region]) collection[serviceLower][callKey][region] = {};
 
-				var LocalAWSConfig = JSON.parse(JSON.stringify(AWSConfig));
-				LocalAWSConfig.region = region;
+				var LocalAWSConfig = {region: region};
 
 				if (callObj.override) {
 					collectors[serviceLower][callKey](LocalAWSConfig, collection, function(){
@@ -520,7 +518,8 @@ var collect = function(AWSConfig, settings, callback) {
 							 !collection[callObj.reliesOnService][callObj.reliesOnCall][region].data ||
 							 !collection[callObj.reliesOnService][callObj.reliesOnCall][region].data.length)) return regionCb();
 
-						var LocalAWSConfig = JSON.parse(JSON.stringify(AWSConfig));
+						var LocalAWSConfig = {};
+
 						if (callObj.deleteRegion) {
 							//delete LocalAWSConfig.region;
 							LocalAWSConfig.region = 'us-east-1';
