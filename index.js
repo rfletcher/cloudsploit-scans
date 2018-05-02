@@ -12,10 +12,6 @@ AWS.config = new AWS.Config({
     // region: ''
 });
 
-if (!AWS.config.credentials.accessKeyId) {
-    return console.log('ERROR: Invalid AWS Config');
-}
-
 var skipRegions = [];   // Add any regions you wish to skip here. Ex: 'us-east-2'
 
 // Custom settings - place plugin-specific settings here
